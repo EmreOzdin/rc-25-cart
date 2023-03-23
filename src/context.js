@@ -7,25 +7,43 @@ const url = 'https://course-api.com/react-useReducer-cart-project'
 const AppContext = createContext();
 
 const AppProvider = ({ children }) => {
-  const [cart, setCart] = useState([cartItems])
-
+  const [cart, setCart] = useState([cartItems]);
 
   useEffect(() => {
     fetch(url)
       .then((response) => response.json())
       .then((data) => setCart(data))
-      .catch(err=>console.log(err));
-  }, [])
- 
+      .catch((err) => console.log(err));
+  }, []);
+
   const handleIncrease = (id) => {
-    setCart(cart?.map((item) => (item.id === id ? { ...item, amount: item.amount+1 } : item)))};
+    setCart(
+      cart?.map((item) =>
+        item.id === id ? { ...item, amount: item.amount + 1 } : item
+      )
+    );
+  };
 
   const handleDecrease = (id) => {
-  
-    setCart(cart?.map((item) => (item.id === id ? { ...item, amount: item.amount-1 } : item)).filter(item =>item.amount != 0))};
+    setCart(
+      cart
+        ?.map((item) =>
+          item.id === id ? { ...item, amount: item.amount - 1 } : item
+        )
+        .filter((item) => item.amount != 0)
+    );
+  };
 
   const handleRemove = (id) => {
-    setCart(cart.filter((item) =>  item.id != id));}
+    setCart(cart.filter((item) => item.id != id));
+  };
+
+  let total = 0;
+  let total2 = 0;
+  cart.map((item) => {
+    total += item.amount;
+    total2 += item.price * item.amount;
+  });
 
   return (
     <AppContext.Provider
@@ -33,12 +51,14 @@ const AppProvider = ({ children }) => {
         cart,
         handleDecrease,
         handleIncrease,
-        handleRemove
+        handleRemove,
+        total,
+        total2,
       }}
     >
       {children}
     </AppContext.Provider>
-  )
+  );
 }
 // make sure use
 export const useGlobalContext = () => {
