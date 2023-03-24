@@ -1,46 +1,78 @@
 import React, { createContext, useState, useContext, useReducer, useEffect } from 'react'
 import cartItems from './data'
-import reducer from './reducer'
+// import reducer from './reducer'
 // ATTENTION!!!!!!!!!!
 // I SWITCHED TO PERMANENT DOMAIN
 const url = 'https://course-api.com/react-useReducer-cart-project'
 const AppContext = createContext();
 
-const AppProvider = ({ children }) => {
-  const [cart, setCart] = useState([cartItems]);
 
-  useEffect(() => {
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => setCart(data))
-      .catch((err) => console.log(err));
-  }, []);
+function reducer(state, action) {
+  console.log(state);
+  switch (action.type) {
+    case "increase":
+      return {
+        ...state,
+        cart: state.cart?.map((item) =>
+          item.id === action.value ? { ...item, amount: item.amount + 1 } : item
+        ),
+      };
+    case "decrease":
+      return {
+        ...state,
+        cart: state.cart
+          ?.map((item) =>
+            item.id === action.payload
+              ? { ...item, amount: item.amount - 1 }
+              : item
+          )
+          .filter((item) => item.amount != 0),
+      };
+    case "remove":
+      return {
+        ...state,
+        cart: state.cart?.filter((item) => item.id != action.payload),
+      };
+  }
+}
+
+const AppProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, {
+    cart: cartItems,
+  });
+  const cart = state.cart;
+  // const [cart, setCart] = useState("");
+  // useEffect(() => {
+  //   fetch(url)
+  //     .then((response) => response.json())
+  //     .then((data) => setCart(data))
+  //     .catch((err) => console.log(err));
+  // }, []);
 
   const handleIncrease = (id) => {
-    setCart(
-      cart?.map((item) =>
-        item.id === id ? { ...item, amount: item.amount + 1 } : item
-      )
-    );
+    dispatch({
+      type: "increase",
+      value: id,
+    });
   };
 
   const handleDecrease = (id) => {
-    setCart(
-      cart
-        ?.map((item) =>
-          item.id === id ? { ...item, amount: item.amount - 1 } : item
-        )
-        .filter((item) => item.amount != 0)
-    );
+    dispatch({
+      type: "decrease",
+      payload: id,
+    });
   };
 
   const handleRemove = (id) => {
-    setCart(cart.filter((item) => item.id != id));
+    dispatch({
+      type: "remove",
+      payload: id,
+    });
   };
 
   let total = 0;
   let total2 = 0;
-  cart.map((item) => {
+  state.cart.map((item) => {
     total += item.amount;
     total2 += item.price * item.amount;
   });
@@ -59,7 +91,7 @@ const AppProvider = ({ children }) => {
       {children}
     </AppContext.Provider>
   );
-}
+};
 // make sure use
 export const useGlobalContext = () => {
   return useContext(AppContext)

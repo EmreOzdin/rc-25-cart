@@ -3,8 +3,8 @@ import CartItem from './CartItem'
 import { useGlobalContext } from './context'
 
 const CartContainer = () => {
-  const { cart, total2 } = useGlobalContext();
 
+  const { cart, total2 } = useGlobalContext();
   if (cart.length === 0) {
     return (
       <section className="cart">
@@ -25,7 +25,7 @@ const CartContainer = () => {
       {/* cart items */}
       <div>
         {cart.map((item) => {
-          return <CartItem key={item.id} {...item} />;
+          return <CartItem key={item.id} item={item} />;
         })}
       </div>
       {/* cart footer */}
